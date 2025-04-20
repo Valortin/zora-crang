@@ -1,9 +1,22 @@
+# 🚀 Zora Coin Crash Gambling Simulator  
+**Supercharge Zora Coins with AI-Powered Volatility Gaming**  
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) 
+[![Zora SDK](https://img.shields.io/badge/Powered%20by-Zora%20SDK-000000.svg)](https://docs.zora.co/coins)  
 
-# Crash Gambling Simulator 
+## 🌟 Overview  
+A high-octane gambling experience where Zora Coins (ERC-20 tokens) meet AI-driven crash mechanics. Players bet on a rising multiplier curve, cashing out before it crashes—all while generating referral fees for creators and traders via Zora’s Coins Protocol. Built for **Zora’s 2nd Wave Hackathon**. 
 
 A recreation of the popular online casino game "crash" with accurate casino odds. 
 
 ![showcase](https://i.imgur.com/bpXV3zI.png)
+
+## 🎮 Features  
+- **🪙 Zora Coin Bets**: Use any Zora Coin (e.g., $MEME2023, $AIART) as in-game currency.  
+- **🤖 AI Crash Prediction**: ML model adjusts odds using historical data and social sentiment.  
+- 💸 **Real-Time Payouts**: Instant withdrawals powered by Zora’s SDK and Base L2.  
+- 🏆 **Multiplayer Leaderboards**: Compete globally with Socket.io-powered live races.  
+- 📢 **Social Integration**: Share bets on Farcaster and clone influencer strategies.  
+
 ## Technologies Used 
 
 * [React.js](https://reactjs.org/) - JS framework used to create the frontend.
