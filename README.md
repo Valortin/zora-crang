@@ -4,6 +4,7 @@
 [![Zora SDK](https://img.shields.io/badge/Powered%20by-Zora%20SDK-000000.svg)](https://docs.zora.co/coins)  
 
 ## 🌟 Overview  
+
 A high-octane gambling experience where Zora Coins (ERC-20 tokens) meet AI-driven crash mechanics. Players bet on a rising multiplier curve, cashing out before it crashes—all while generating referral fees for creators and traders via Zora’s Coins Protocol. Built for **Zora’s 2nd Wave Hackathon**. 
 
 A recreation of the popular online casino game "crash" with accurate casino odds. 
