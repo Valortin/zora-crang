@@ -1,81 +1,46 @@
-# 🚀 Zora Coin Crash Gambling Simulator  
-**Supercharge Zora Coins with AI-Powered Volatility Gaming**  
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) 
-[![Zora SDK](https://img.shields.io/badge/Powered%20by-Zora%20SDK-000000.svg)](https://docs.zora.co/coins)  
+# Getting Started with Create React App
 
-## 🌟 Overview  
+This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-A high-octane gambling experience where Zora Coins (ERC-20 tokens) meet AI-driven crash mechanics. Players bet on a rising multiplier curve, cashing out before it crashes—all while generating referral fees for creators and traders via Zora’s Coins Protocol. Built for **Zora’s 2nd Wave Hackathon**. 
+## Available Scripts
 
-A recreation of the popular online casino game "crash" with accurate casino odds. 
+In the project directory, you can run:
 
-![showcase](https://i.imgur.com/bpXV3zI.png)
+### `npm start`
 
-## 🎮 Features  
-- **🪙 Zora Coin Bets**: Use any Zora Coin (e.g., $MEME2023, $AIART) as in-game currency.  
-- **🤖 AI Crash Prediction**: ML model adjusts odds using historical data and social sentiment.  
-- 💸 **Real-Time Payouts**: Instant withdrawals powered by Zora’s SDK and Base L2.  
-- 🏆 **Multiplayer Leaderboards**: Compete globally with Socket.io-powered live races.  
-- 📢 **Social Integration**: Share bets on Farcaster and clone influencer strategies.  
+Runs the app in the development mode.\
+Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 
-## Technologies Used 
+The page will reload if you make edits.\
+You will also see any lint errors in the console.
 
-* [React.js](https://reactjs.org/) - JS framework used to create the frontend.
-*  [Express.js](https://expressjs.com/) - The backend server environment and serves as an API.
-* [Node.js](https://nodejs.org/en/) - JS environment that executes JS outside of the browser.
-* [Socket.io](https://socket.io/) - Allows communication between the server and client in real time. 
-* [MongoDB](https://www.mongodb.com/) - NoSQL database used to store all user and server information. 
-* [Passport.js](https://www.passportjs.org/) - Middleware used to authenticate and authorize users. Handles logins and registrations.
-* [bcrypt.js](https://www.npmjs.com/package/bcrypt) - Secures user passwords by hashing all passwords before storing in database. 
-* [Chart.js](https://www.chartjs.org/) - Create visualizations of data through charts and graphs like line graphs. 
-* HTML
-* CSS
+### `npm test`
 
-## Features
-* Login system - Users must log in or create an account to place bets. 
-* Betting system - Users wager their balance before the round begins. A multiplier counts up from 1.00 and users can cash out at any time, multiplying their bet amount by the current multiplier. The multiplier will stop, or crash, at a randomly generated value, and users who have not cashed out yet will lose their entire bet. 
-* Accurate Gambling Odds - Every crash value is generated using the same algorithms real casinos use, including a 3% house edge. 
-* Live Bet Tracker - Users can see other users betting live. When a user places a bet, their username and bet amount are added to a live table. When the user cashes out, their cash out multiplier and profit are also added. 
-* Game History - Displays the crash values of the last 25 games played along with the streak of games with crash values above or below 2.00. 
-* Chat - Users who are logged in can send messages to other users through chat 
-* Live Line Graph - Visualization of the current multiplier with respect to time. 
+Launches the test runner in the interactive watch mode.\
+See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
 
-## Installation 
-    // Clone the repository
-    $ git clone https://github.com/Valortin/zora-crashgambling-simulator
-    
-    // Navigate to directory
-    $ cd ./Online-Crash-Gambling-Simulator
+### `npm run build`
 
-### Setup and Run Client
+Builds the app for production to the `build` folder.\
+It correctly bundles React in production mode and optimizes the build for the best performance.
 
-    // Navigate to client directory 
-    $ cd ./client
-    
-    // install packages
-    $ npm i 
-    
-    // start client (localhost:3000)
-    $ npm start
-    
-    // For running in production
-    $ npm run build
-    $ npm start
+The build is minified and the filenames include the hashes.\
+Your app is ready to be deployed!
 
-### Setup and Run Server
+See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
 
-    // Navigate to server directory 
-    $ cd ./backend
-    
-    // install packages
-    $ npm i 
-    
-    // install nodemon for development
-    $ npm i -D nodemon
-    
-    // start node server (localhost:4000) and socket.io server (localhost:3001) 
-    $ npm start 
+### `npm run eject`
 
-### Environment Variables 
-* MONGOOSE_DB_LINK - URL to MongoDB server 
-* PASSPORT_SECRET -  Secret for Passport.js authorization and authentication 
+**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+
+If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+
+Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+
+You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+
+## Learn More
+
+You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+
+To learn React, check out the [React documentation](https://reactjs.org/).
