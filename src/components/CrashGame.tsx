@@ -1,197 +1,131 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { useAccount, useWalletClient, usePublicClient } from 'wagmi';
-import { Address, parseEther } from 'viem';
-import { base } from 'viem/chains'; // Add this import
-import { tradeCoin, getCoin } from '@zoralabs/coins-sdk';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Line } from 'react-chartjs-2';
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-} from 'chart.js';
+import React, { useState, useEffect } from 'react';
+import { useAccount } from 'wagmi';
+import { createCoin, getCoin, tradeCoin, setApiKey } from '@zoralabs/coins-sdk';
+import { motion } from 'framer-motion';
+import TradingDashboard from './TradingDashboard';
+import ReferralShare from './ReferralShare';
 
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
+setApiKey(process.env.REACT_APP_ZORA_API_KEY || '');
 
 const CrashGame: React.FC = () => {
   const { address } = useAccount();
-  const { data: walletClient } = useWalletClient();
-  const publicClient = usePublicClient();
-  const [betAmount, setBetAmount] = useState<string>('0.1');
+  const [coinAddress, setCoinAddress] = useState<string>('YOUR_COIN_ADDRESS');
+  const [betAmount, setBetAmount] = useState<number>(0);
   const [multiplier, setMultiplier] = useState<number>(1);
-  const [gameState, setGameState] = useState<'idle' | 'running' | 'crashed'>('idle');
-  const [crashedAt, setCrashedAt] = useState<number | null>(null);
-  const [chartData, setChartData] = useState<number[]>([1]);
-  const [coinAddress] = useState<Address>('0xYourCoinAddress'); // Replace with actual Zora Coin address
-  const [coinData, setCoinData] = useState<any>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [gameStatus, setGameStatus] = useState<'idle' | 'running' | 'crashed'>('idle');
+  const [coinData, setCoinData] = useState<{ volume: number; price: number; rewards: number } | null>(null);
 
-  // Fetch coin data
-  useEffect(() => {
-    const fetchCoinData = async () => {
-      try {
-        const response = await getCoin({ address: coinAddress, chain: base.id });
-        setCoinData(response.data?.zora20Token);
-      } catch (err: any) {
-        setError('Failed to fetch coin data: ' + err.message);
-      }
-    };
-    fetchCoinData();
-  }, [coinAddress]);
-
-  // Crash game logic
-  const startGame = useCallback(async () => {
-    if (!address || !walletClient || !publicClient) {
-      setError('Please connect your wallet');
-      return;
-    }
-
-    setGameState('running');
-    setMultiplier(1);
-    setChartData([1]);
-    setCrashedAt(null);
-
-    // Simulate crash game
-    const crashPoint = Math.random() * 5 + 1; // Random crash between 1x and 6x
-    let currentMultiplier = 1;
-    const interval = setInterval(() => {
-      if (currentMultiplier >= crashPoint) {
-        setGameState('crashed');
-        setCrashedAt(currentMultiplier);
-        clearInterval(interval);
-        return;
-      }
-      currentMultiplier += 0.1;
-      setMultiplier(parseFloat(currentMultiplier.toFixed(2)));
-      setChartData((prev) => [...prev, currentMultiplier]);
-    }, 100);
-
-    // Place bet by buying Zora Coins
+  // Mint a new crash coin
+  const mintCrashCoin = async () => {
     try {
-      const buyParams = {
-        direction: 'buy' as const,
-        target: coinAddress,
-        args: {
-          recipient: address,
-          orderSize: parseEther(betAmount),
-          minAmountOut: 0n,
-        },
-      };
-      const result = await tradeCoin(buyParams, walletClient, publicClient);
-      console.log('Bet placed:', result);
-    } catch (err: any) {
-      setError('Failed to place bet: ' + err.message);
-      setGameState('idle');
-      clearInterval(interval);
+      const coin = await createCoin({
+        name: `CrashRound-${Date.now()}`,
+        symbol: `CRASH${Date.now()}`,
+        supply: 1_000_000_000,
+        uniswapPool: true,
+      });
+      setCoinAddress(coin.address);
+      return coin;
+    } catch (error) {
+      console.error('Error minting crash coin:', error);
     }
-  }, [address, walletClient, publicClient, betAmount, coinAddress]);
-
-  const cashOut = useCallback(async () => {
-    if (gameState !== 'running' || !address || !walletClient || !publicClient) return;
-
-    setGameState('idle');
-    try {
-      const sellParams = {
-        direction: 'sell' as const,
-        target: coinAddress,
-        args: {
-          recipient: address,
-          orderSize: parseEther((parseFloat(betAmount) * multiplier).toString()),
-          minAmountOut: 0n,
-        },
-      };
-      const result = await tradeCoin(sellParams, walletClient, publicClient);
-      console.log('Cashed out:', result);
-    } catch (err: any) {
-      setError('Failed to cash out: ' + err.message);
-    }
-  }, [gameState, address, walletClient, publicClient, betAmount, multiplier, coinAddress]);
-
-  // Chart configuration
-  const chartConfig = {
-    labels: chartData.map((_, i) => i.toString()),
-    datasets: [
-      {
-        label: 'Multiplier',
-        data: chartData,
-        borderColor: '#ff4d4f',
-        backgroundColor: 'rgba(255, 77, 79, 0.2)',
-        fill: true,
-        tension: 0.4,
-      },
-    ],
   };
 
+  // Fetch coin trading data
+  const fetchCoinData = async () => {
+    if (!coinAddress) return;
+    try {
+      const coin = await getCoin(coinAddress);
+      setCoinData({
+        volume: coin.tradingVolume || 0,
+        price: coin.currentPrice || 0,
+        rewards: coin.creatorRewards || 0,
+      });
+    } catch (error) {
+      console.error('Error fetching coin data:', error);
+    }
+  };
+
+  // Start game
+  const startGame = async () => {
+    if (!address || !betAmount) return;
+    setGameStatus('running');
+    const coin = await mintCrashCoin();
+    if (coin) {
+      // Simulate multiplier increase (replace with real logic)
+      const interval = setInterval(() => {
+        setMultiplier(prev => {
+          if (prev >= 10) {
+            setGameStatus('crashed');
+            clearInterval(interval);
+            return prev;
+          }
+          return prev + 0.1;
+        });
+      }, 100);
+    }
+  };
+
+  // Cash out
+  const cashOut = async () => {
+    if (gameStatus !== 'running') return;
+    try {
+      await tradeCoin({
+        coinAddress,
+        amount: betAmount * multiplier,
+        tradeType: 'sell',
+        minAmountOut: BigInt(0),
+      });
+      setGameStatus('idle');
+      setMultiplier(1);
+    } catch (error) {
+      console.error('Error cashing out:', error);
+    }
+  };
+
+  useEffect(() => {
+    if (coinAddress) fetchCoinData();
+  }, [coinAddress]);
+
   return (
-    <div className="w-full max-w-2xl bg-zora-secondary rounded-lg p-6">
-      {coinData && (
-        <div className="mb-4">
-          <h2 className="text-2xl font-semibold">{coinData.name} ({coinData.symbol})</h2>
-          <p>Market Cap: ${coinData.marketCap}</p>
-          <p>24h Volume: ${coinData.volume24h}</p>
-        </div>
-      )}
-      {error && <p className="text-red-500 mb-4">{error}</p>}
-      <div className="mb-6">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="w-full max-w-2xl bg-zora-secondary rounded-lg p-6 shadow-lg"
+    >
+      <h2 className="text-2xl font-bold text-zora-accent mb-4">Crash Game</h2>
+      <div className="mb-4">
+        <label className="text-white">Bet Amount (ZORA):</label>
         <input
           type="number"
           value={betAmount}
-          onChange={(e) => setBetAmount(e.target.value)}
-          className="w-full p-2 bg-gray-700 rounded text-white"
-          placeholder="Bet amount (ETH)"
-          disabled={gameState === 'running'}
+          onChange={(e) => setBetAmount(Number(e.target.value))}
+          className="ml-2 p-2 rounded bg-zora-bg text-white"
         />
       </div>
-      <motion.div
-        className="relative h-64"
-        animate={{ scale: gameState === 'running' ? 1.05 : 1 }}
-        transition={{ duration: 0.3 }}
-      >
-        <Line
-          data={chartConfig}
-          options={{
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: { y: { beginAtZero: true, max: 6 } },
-          }}
-        />
-        {gameState === 'crashed' && (
-          <motion.div
-            className="absolute inset-0 flex items-center justify-center text-4xl font-bold text-red-500"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5 }}
-          >
-            Crashed at {crashedAt?.toFixed(2)}x!
-          </motion.div>
-        )}
-      </motion.div>
-      <div className="flex justify-between mt-4">
-        <motion.button
-          className="px-4 py-2 bg-zora-accent text-white rounded disabled:opacity-50"
+      <div className="mb-4">
+        <p className="text-white">Multiplier: {multiplier.toFixed(2)}x</p>
+        <p className="text-white">Status: {gameStatus}</p>
+      </div>
+      <div className="flex space-x-4 mb-4">
+        <button
           onClick={startGame}
-          disabled={gameState === 'running' || !address}
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
+          disabled={gameStatus !== 'idle'}
+          className="bg-zora-accent text-white px-4 py-2 rounded-md hover:bg-red-600"
         >
           Start Game
-        </motion.button>
-        <motion.button
-          className="px-4 py-2 bg-green-500 text-white rounded disabled:opacity-50"
+        </button>
+        <button
           onClick={cashOut}
-          disabled={gameState !== 'running'}
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
+          disabled={gameStatus !== 'running'}
+          className="bg-zora-accent text-white px-4 py-2 rounded-md hover:bg-red-600"
         >
-          Cash Out ({multiplier.toFixed(2)}x)
-        </motion.button>
+          Cash Out
+        </button>
       </div>
-    </div>
+      <TradingDashboard coinAddress={coinAddress} coinData={coinData} />
+      <ReferralShare userAddress={address || ''} coinAddress={coinAddress} />
+    </motion.div>
   );
 };
 
