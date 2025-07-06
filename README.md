@@ -168,7 +168,7 @@ Zora-crang is a decentralized application (dApp) built on the Base blockchain, d
 - **Community Leagues**: Introduce Crash Leagues where teams create shared coins, with AI-powered crash predictions and NFT badges for referrals.
 
 - **Cross-Chain Expansion**: Enable tournaments across Base, Optimism, and Arbitrum, with an AI-driven marketplace for crash coins and NFTs.
-- See [previous ideas](#) for details.
+
 
 ## Contributing
 
