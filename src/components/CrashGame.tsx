@@ -2,8 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useAccount } from 'wagmi';
 import { createCoin, getCoin, tradeCoin, setApiKey } from '@zoralabs/coins-sdk';
 import { motion } from 'framer-motion';
+import { useQuery } from '@tanstack/react-query';
+import axios from 'axios';
 import TradingDashboard from './TradingDashboard';
 import ReferralShare from './ReferralShare';
+import TutorialModal from './TutorialModal';
 
 setApiKey(process.env.REACT_APP_ZORA_API_KEY || '');
 
@@ -14,22 +17,8 @@ const CrashGame: React.FC = () => {
   const [multiplier, setMultiplier] = useState<number>(1);
   const [gameStatus, setGameStatus] = useState<'idle' | 'running' | 'crashed'>('idle');
   const [coinData, setCoinData] = useState<{ volume: number; price: number; rewards: number } | null>(null);
-
-  // Mint a new crash coin
-  const mintCrashCoin = async () => {
-    try {
-      const coin = await createCoin({
-        name: `CrashRound-${Date.now()}`,
-        symbol: `CRASH${Date.now()}`,
-        supply: 1_000_000_000,
-        uniswapPool: true,
-      });
-      setCoinAddress(coin.address);
-      return coin;
-    } catch (error) {
-      console.error('Error minting crash coin:', error);
-    }
-  };
+  const [showTutorial, setShowTutorial] = useState<boolean>(true);
+  const [showWhyZora, setShowWhyZora] = useState<boolean>(false);
 
   // Fetch coin trading data
   const fetchCoinData = async () => {
@@ -46,13 +35,46 @@ const CrashGame: React.FC = () => {
     }
   };
 
+  // Fetch AI hint
+  const { data: aiHint } = useQuery({
+    queryKey: ['aiHint', coinAddress],
+    queryFn: async () => {
+      const response = await axios.get(`http://localhost:5000/api/ai/hints/${coinAddress}`);
+      return response.data;
+    },
+    enabled: gameStatus === 'running' && !!coinAddress,
+  });
+
+  // Mint a new crash coin
+  const mintCrashCoin = async () => {
+    try {
+      const coin = await createCoin({
+        name: `CrashRound-${Date.now()}`,
+        symbol: `CRASH${Date.now()}`,
+        supply: 1_000_000_000,
+        uniswapPool: true,
+      });
+      setCoinAddress(coin.address);
+      await axios.post('http://localhost:5000/api/sessions', {
+        coinAddress: coin.address,
+        tradingVolume: 0,
+        currentPrice: 0,
+        creatorRewards: 0,
+        userAddress: address,
+        tutorialProgress: 0,
+      });
+      return coin;
+    } catch (error) {
+      console.error('Error minting crash coin:', error);
+    }
+  };
+
   // Start game
   const startGame = async () => {
     if (!address || !betAmount) return;
     setGameStatus('running');
     const coin = await mintCrashCoin();
     if (coin) {
-      // Simulate multiplier increase (replace with real logic)
       const interval = setInterval(() => {
         setMultiplier(prev => {
           if (prev >= 10) {
@@ -107,6 +129,16 @@ const CrashGame: React.FC = () => {
         <p className="text-white">Multiplier: {multiplier.toFixed(2)}x</p>
         <p className="text-white">Status: {gameStatus}</p>
       </div>
+      {aiHint && gameStatus === 'running' && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="bg-zora-accent text-white p-4 rounded-lg absolute top-4 right-4"
+        >
+          <p>{aiHint.message}</p>
+          <p>Confidence: {(aiHint.confidence * 100).toFixed(0)}%</p>
+        </motion.div>
+      )}
       <div className="flex space-x-4 mb-4">
         <button
           onClick={startGame}
@@ -122,9 +154,37 @@ const CrashGame: React.FC = () => {
         >
           Cash Out
         </button>
+        <button
+          onClick={() => setShowTutorial(true)}
+          className="bg-zora-bg text-white px-4 py-2 rounded-md hover:bg-gray-700"
+        >
+          Show Tutorial
+        </button>
       </div>
+      <motion.div
+        initial={{ height: 0 }}
+        animate={{ height: showWhyZora ? 'auto' : 0 }}
+        className="overflow-hidden"
+      >
+        <div className="bg-zora-secondary p-4 rounded-lg">
+          <h3 className="text-xl font-bold text-zora-accent mb-2">Why Zora Coins?</h3>
+          <p className="text-white">Mint a unique crash coin for each game, trade it instantly on Uniswap V4, and earn 1% of every trade as the creator. Share your coin’s referral link to earn 15% of trading fees, powered by Zora’s creator economy!</p>
+        </div>
+      </motion.div>
+      <button
+        onClick={() => setShowWhyZora(!showWhyZora)}
+        className="text-zora-accent mt-2 hover:underline"
+      >
+        {showWhyZora ? 'Hide' : 'Why Zora Coins?'}
+      </button>
       <TradingDashboard coinAddress={coinAddress} coinData={coinData} />
       <ReferralShare userAddress={address || ''} coinAddress={coinAddress} />
+      <TutorialModal
+        isOpen={showTutorial}
+        onClose={() => setShowTutorial(false)}
+        coinAddress={coinAddress}
+        userAddress={address || ''}
+      />
     </motion.div>
   );
 };
